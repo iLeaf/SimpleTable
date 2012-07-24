@@ -108,6 +108,15 @@
 }
 
 
+#pragma mark -
+#pragma mark Editing
+
+- (void)setEditing:(BOOL)editing animated:(BOOL)animated {
+    
+    [super setEditing:editing animated:animated];
+    NSLog(@"setEditing");
+}
+
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
