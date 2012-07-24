@@ -63,15 +63,36 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return _objects.count;
+    return _objects.count+1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
-
-    NSDate *object = [_objects objectAtIndex:indexPath.row];
-    cell.textLabel.text = [object description];
+    UITableViewCell *cell = nil;
+    
+    if (indexPath.row < _objects.count) 
+    {
+        cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Cell"];
+            cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+        
+        NSDate *object = [_objects objectAtIndex:indexPath.row];
+        cell.textLabel.text = [object description];
+    }
+    else 
+    {
+        cell = [tableView dequeueReusableCellWithIdentifier:@"Add"];
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"Add"];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        }
+        
+        cell.textLabel.text = @"Add";
+    }
+    
+    
     return cell;
 }
 
@@ -104,9 +125,26 @@
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the item to be re-orderable.
-    return YES;
+    BOOL canMove = NO;
+    if (indexPath.row < _objects.count) {
+        canMove = YES;
+    }
+    return canMove;
 }
 
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+	UITableViewCellEditingStyle style = UITableViewCellEditingStyleNone;
+    
+    if (indexPath.row == [_objects count]) {
+        style = UITableViewCellEditingStyleInsert;
+    }
+    else {
+        style = UITableViewCellEditingStyleDelete;
+    }
+    
+    return style;
+}
 
 #pragma mark -
 #pragma mark Editing
@@ -115,6 +153,20 @@
     
     [super setEditing:editing animated:animated];
     NSLog(@"setEditing");
+    [self.tableView beginUpdates];
+	
+    /*
+     NSUInteger ingredientsCount = [_objects count];
+     
+     NSArray *ingredientsInsertIndexPath = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:ingredientsCount inSection:0]];
+    if (editing) {
+        [self.tableView insertRowsAtIndexPaths:ingredientsInsertIndexPath withRowAnimation:UITableViewRowAnimationTop];
+	} else {
+        [self.tableView deleteRowsAtIndexPaths:ingredientsInsertIndexPath withRowAnimation:UITableViewRowAnimationTop];
+    }
+    */
+    
+    [self.tableView endUpdates];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
